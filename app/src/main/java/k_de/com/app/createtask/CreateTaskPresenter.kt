@@ -1,17 +1,23 @@
 package k_de.com.app.createtask
 
-import k_de.com.app.tasks.Task
-import k_de.com.app.tasks.TasksRepository
+import android.content.Context
+import k_de.com.app.db.AppDatabase
+import k_de.com.app.db.Task
 
-class CreateTaskPresenter:CreateTaskContract.Presenter{
+class CreateTaskPresenter(context: Context?) :CreateTaskContract.Presenter{
 
-    private var repos: TasksRepository = TasksRepository.instance
+    var db: AppDatabase = AppDatabase.getInstance(context)!!
+    var view: CreateTaskContract.View? = null
 
     override fun saveTask(task: Task) {
-        repos.saveTask(task)
+        db.taskDao().insert(task)
     }
-
-    var view: CreateTaskContract.View? = null
+    override fun updateTask(task: Task){
+        val tasks = db.getAll(false)
+        val i = tasks.indexOf(task)
+        task.id = tasks[i].id
+        db.taskDao().update(task)
+    }
 
     override fun attachView(mvpView: CreateTaskContract.View) {
         view = mvpView

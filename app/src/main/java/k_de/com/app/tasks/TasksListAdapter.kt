@@ -1,30 +1,41 @@
 package k_de.com.app.tasks
 
 import android.content.Context
-import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.CheckBox
 import android.widget.TextView
-import android.widget.Toast
 import k_de.com.app.R
+import k_de.com.app.db.Task
 import k_de.com.app.main.MainContract
 import k_de.com.app.util.DateUtils
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
-class TasksListAdapter(context: Context,
-                       private val dataSource: List<Task>) : BaseAdapter(){
+class TasksListAdapter(context: Context, private val dataSource: MutableList<Task>) : BaseAdapter() {
 
     private lateinit var presenter: MainContract.Presenter
-    private lateinit var view:MainContract.View
 
-    fun setPresenter(presenter:MainContract.Presenter){
+    private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+    private lateinit var view: MainContract.View
+
+    fun setPresenter(presenter: MainContract.Presenter) {
         this.presenter = presenter
     }
-    fun setView(view:MainContract.View){
+
+    fun setView(view: MainContract.View) {
         this.view = view
     }
+
+    fun addAll(tasks:List<Task>){
+        dataSource.clear()
+        dataSource.addAll(tasks)
+        notifyDataSetChanged()
+    }
+
     override fun getView(p0: Int, rowView: View?, parent: ViewGroup?): View {
 
         val rowView = inflater.inflate(R.layout.list_item, parent, false)
@@ -37,16 +48,21 @@ class TasksListAdapter(context: Context,
 
         done.setOnCheckedChangeListener { view, isChecked ->
             item.isDone = isChecked
-            presenter.change(item)
-            taskName.setTextAppearance(if (isChecked) R.style.doneText else R.style.normalText)
-            taskDate.setTextAppearance(if (isChecked) R.style.doneTextItalic else R.style.normalTextItelic)
+            doAsync {
+                presenter.change(item)
+                uiThread {
+                    taskName.setTextAppearance(if (isChecked) R.style.doneText else R.style.normalText)
+                    taskDate.setTextAppearance(if (isChecked) R.style.doneTextItalic else R.style.normalTextItelic)
+
+                }
+            }
         }
         rowView.setOnLongClickListener({
-            view.showDialog(R.string.task_dialog_delete_title,R.string.task_dialog_delete_mess,item)
+            view.showDialog(R.string.task_dialog_delete_title, R.string.task_dialog_delete_mess, item)
             return@setOnLongClickListener true
         })
         rowView.setOnClickListener({
-          view.showTask(item)
+            view.showTask(item)
         })
         taskName.setText(item.name)
         taskDate.setText(DateUtils.toSimpleString(item.date))
@@ -66,8 +82,5 @@ class TasksListAdapter(context: Context,
     override fun getCount(): Int {
         return dataSource.size
     }
-
-    private val inflater: LayoutInflater
-            = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
+//https://github.com/irontec/android-room-example/blob/master/app/src/main/java/com/irontec/roomexample/adapters/CustomerAdapter.kt
 }

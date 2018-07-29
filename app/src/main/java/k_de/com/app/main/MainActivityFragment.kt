@@ -1,46 +1,48 @@
 package k_de.com.app.main
 
+
 import android.app.AlertDialog
-import android.content.DialogInterface
-import android.content.DialogInterface.BUTTON_NEGATIVE
-import android.support.v4.app.Fragment
 
-
-
+import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
+import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import k_de.com.app.R
-import k_de.com.app.tasks.TasksListAdapter
-import android.content.Intent
-import android.support.design.widget.FloatingActionButton
 import android.widget.ListView
-import android.widget.Toast
+import k_de.com.app.R
 import k_de.com.app.createtask.CreateTaskActivity
-import k_de.com.app.tasks.Task
-import k_de.com.app.tasks.TasksRepository
-import k_de.com.app.util.Const
-import k_de.com.app.util.DateUtils
+import k_de.com.app.db.Task
+import k_de.com.app.tasks.TasksListAdapter
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
-class MainActivityFragment : Fragment(), MainContract.View{
+class MainActivityFragment : Fragment(), MainContract.View {
+
+    private lateinit var presenter: MainContract.Presenter
+    private lateinit var tasksListAdapter: TasksListAdapter
+    private lateinit var tasksList: ListView
+
     override fun showTask(t: Task) {
         val intent = Intent(context, CreateTaskActivity::class.java)
-        intent.putExtra("task",t)
+        intent.putExtra("task", t)
         startActivityForResult(intent, CreateTaskActivity.REQUEST_ADD_TASK)
     }
 
-    override fun showDialog(titleResId:Int, messResId: Int, item: Task) {
+    override fun showDialog(titleResId: Int, messResId: Int, item: Task) {
 
         val builder = AlertDialog.Builder(context)
         builder.setTitle(titleResId)
         builder.setMessage(messResId)
-        builder.setPositiveButton(R.string.ok){dialog,which->
-            presenter.delete(item)
+        builder.setPositiveButton(R.string.ok) { dialog, which ->
+            doAsync {
+                presenter.delete(item)
+            }
             dialog.dismiss()
             showAllTasks()
         }
-        builder.setNegativeButton(R.string.cancel){dialog,which->
+        builder.setNegativeButton(R.string.cancel) { dialog, which ->
             dialog.dismiss()
         }
         builder.show()
@@ -51,33 +53,44 @@ class MainActivityFragment : Fragment(), MainContract.View{
         startActivityForResult(intent, CreateTaskActivity.REQUEST_ADD_TASK)
     }
 
-    private lateinit var presenter:MainContract.Presenter
-    private lateinit var tasksListAdapter: TasksListAdapter
-    private lateinit var tasksList:ListView
-
     override fun setPresenter(p: MainContract.Presenter) {
         presenter = p
     }
 
     override fun showAllTasks() {
-        val tasks = presenter.loadTasks(true)
-        tasksListAdapter = TasksListAdapter(this.activity!!, tasks)
-        tasksListAdapter.setPresenter(presenter)
-        tasksListAdapter.setView(this)
-        tasksList.adapter = tasksListAdapter
+        doAsync {
+            val tasks = presenter.loadTasks(true)
+            uiThread {
+                tasksListAdapter.addAll(tasks)
+            }
+        }
 
     }
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val v =  inflater.inflate(R.layout.content_main, container, false)
+        val v = inflater.inflate(R.layout.content_main, container, false)
+
+        presenter = MainPresenter(context)
+        presenter.attachView(this)
         tasksList = v.findViewById(R.id.tasksView) as ListView
-        showAllTasks()
+
         val btn = v.findViewById(R.id.fab) as FloatingActionButton
         btn.setOnClickListener({
             showAddTask()
         })
+        tasksListAdapter = TasksListAdapter(this.activity!!, mutableListOf())
+        tasksListAdapter.setPresenter(presenter)
+        tasksListAdapter.setView(this)
+        tasksList.adapter = tasksListAdapter
+        showAllTasks()
         return v
+    }
+
+    override fun onResume() {
+        super.onResume()
+        presenter = MainPresenter(context)
+        presenter.attachView(this)
     }
 }

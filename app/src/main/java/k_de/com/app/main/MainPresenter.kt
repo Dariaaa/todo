@@ -1,19 +1,20 @@
 package k_de.com.app.main
 
-import k_de.com.app.tasks.Task
-import k_de.com.app.tasks.TasksRepository
+import android.content.Context
+import k_de.com.app.db.AppDatabase
+import k_de.com.app.db.Task
 
-class MainPresenter:MainContract.Presenter{
+class MainPresenter(context: Context?):MainContract.Presenter{
     var view: MainContract.View? = null
-
-    var repos:TasksRepository = TasksRepository.instance
+    var db:AppDatabase = AppDatabase.getInstance(context)!!
+    lateinit var tasks :List<Task>
 
     override fun delete(item: Task) {
-        TasksRepository.instance.deleteTask(item)
+        db.taskDao().delete(item)
     }
 
     override fun change(item: Task) {
-        repos.change(item)
+        db.taskDao().update(item)
     }
 
     override fun attachView(mvpView: MainContract.View) {
@@ -21,7 +22,10 @@ class MainPresenter:MainContract.Presenter{
     }
 
     override fun loadTasks(forseUpdate: Boolean): List<Task> {
-        return repos.loadTasks(forseUpdate)
+        if (forseUpdate)
+            tasks = db.taskDao().getAll()
+
+        return tasks
     }
 
     override fun detachView() {

@@ -1,17 +1,15 @@
 package k_de.com.app.main
 
-import android.content.DialogInterface
-import android.database.sqlite.SQLiteTableLockedException
 import k_de.com.app.mvp.MvpPresenter
 import k_de.com.app.mvp.MvpView
-import k_de.com.app.tasks.Task
+import k_de.com.app.db.Task
 
 interface MainContract{
     interface View: MvpView {
         fun showAllTasks()
         fun setPresenter(p:Presenter)
         fun showAddTask()
-        fun showTask(t:Task)
+        fun showTask(t: Task)
         fun showDialog(titleResId:Int, messResId: Int,item: Task)
     }
 

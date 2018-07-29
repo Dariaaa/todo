@@ -17,13 +17,13 @@ class MainActivity : AppCompatActivity(){
         setSupportActionBar(toolbar)
         val view = MainActivityFragment()
 
-        val presenter = MainPresenter()
+        val presenter = MainPresenter(this)
         presenter.attachView(view)
 
         view.setPresenter(presenter)
 
         supportFragmentManager.beginTransaction()
-                .add(R.id.main_container,view)
+                .replace(R.id.main_container,view)
                 .commit()
 
 
