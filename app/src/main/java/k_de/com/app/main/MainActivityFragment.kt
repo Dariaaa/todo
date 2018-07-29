@@ -1,5 +1,8 @@
 package k_de.com.app.main
 
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.DialogInterface.BUTTON_NEGATIVE
 import android.support.v4.app.Fragment
 
 
@@ -13,9 +16,29 @@ import k_de.com.app.tasks.TasksListAdapter
 import android.content.Intent
 import android.support.design.widget.FloatingActionButton
 import android.widget.ListView
+import android.widget.Toast
 import k_de.com.app.createtask.CreateTaskActivity
+import k_de.com.app.tasks.Task
+import k_de.com.app.tasks.TasksRepository
+import k_de.com.app.util.Const
 
-class MainActivityFragment : Fragment(), MainContract.View {
+class MainActivityFragment : Fragment(), MainContract.View{
+
+    override fun showDialog(titleResId:Int, messResId: Int, item: Task) {
+
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle(titleResId)
+        builder.setMessage(messResId)
+        builder.setPositiveButton(R.string.ok){dialog,which->
+            presenter.delete(item)
+            dialog.dismiss()
+            showAllTasks()
+        }
+        builder.setNegativeButton(R.string.cancel){dialog,which->
+            dialog.dismiss()
+        }
+        builder.show()
+    }
 
     override fun showAddTask() {
         val intent = Intent(context, CreateTaskActivity::class.java)
@@ -34,8 +57,9 @@ class MainActivityFragment : Fragment(), MainContract.View {
         val tasks = presenter.loadTasks(true)
         tasksListAdapter = TasksListAdapter(this.activity!!, tasks)
         tasksListAdapter.setPresenter(presenter)
-
+        tasksListAdapter.setView(this)
         tasksList.adapter = tasksListAdapter
+
     }
 
 

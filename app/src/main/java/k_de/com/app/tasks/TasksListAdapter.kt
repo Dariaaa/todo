@@ -1,12 +1,14 @@
 package k_de.com.app.tasks
 
 import android.content.Context
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.CheckBox
 import android.widget.TextView
+import android.widget.Toast
 import k_de.com.app.R
 import k_de.com.app.main.MainContract
 import k_de.com.app.util.DateUtils
@@ -15,11 +17,14 @@ class TasksListAdapter(context: Context,
                        private val dataSource: List<Task>) : BaseAdapter(){
 
     private lateinit var presenter: MainContract.Presenter
+    private lateinit var view:MainContract.View
 
     fun setPresenter(presenter:MainContract.Presenter){
         this.presenter = presenter
     }
-
+    fun setView(view:MainContract.View){
+        this.view = view
+    }
     override fun getView(p0: Int, rowView: View?, parent: ViewGroup?): View {
 
         val rowView = inflater.inflate(R.layout.list_item, parent, false)
@@ -36,6 +41,12 @@ class TasksListAdapter(context: Context,
             taskName.setTextAppearance(if (isChecked) R.style.doneText else R.style.normalText)
             taskDate.setTextAppearance(if (isChecked) R.style.doneTextItalic else R.style.normalTextItelic)
         }
+        rowView.setOnLongClickListener({
+            view.showDialog(R.string.task_dialog_delete_title,R.string.task_dialog_delete_mess,item)
+//            Toast.makeText(context, "Position Clicked:"+" "+position, Toast.LENGTH_SHORT).show()
+            return@setOnLongClickListener true
+        })
+
         taskName.setText(item.name)
         taskDate.setText(DateUtils.toSimpleString(item.date))
         done.isChecked = item.isDone

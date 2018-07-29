@@ -8,4 +8,9 @@
     <string name="task.hint.description">Enter task description here...</string>
     <string name="menu.label.done">Done</string>
     <string name="task.label.time">Time</string>
+    <string name="ok">OK</string>
+    <string name="cancel">CANCEL</string>
+    <string name="task.dialog.delete.title">Delete item</string>
+    <string name="task.dialog.delete.mess">Are you sure?</string>
+
 </resources>

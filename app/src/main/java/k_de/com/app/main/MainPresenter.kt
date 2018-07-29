@@ -4,9 +4,13 @@ import k_de.com.app.tasks.Task
 import k_de.com.app.tasks.TasksRepository
 
 class MainPresenter:MainContract.Presenter{
-
     var view: MainContract.View? = null
+
     var repos:TasksRepository = TasksRepository.instance
+
+    override fun delete(item: Task) {
+        TasksRepository.instance.deleteTask(item)
+    }
 
     override fun change(item: Task) {
         repos.change(item)

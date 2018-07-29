@@ -14,6 +14,9 @@ class TasksRepository private constructor(){
             return instance
         }
     }
+    fun deleteTask(t:Task){
+        tasks.remove(t)
+    }
 
     fun saveTask(t: Task){
         tasks.add(t)
