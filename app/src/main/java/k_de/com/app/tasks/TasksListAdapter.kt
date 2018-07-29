@@ -43,10 +43,11 @@ class TasksListAdapter(context: Context,
         }
         rowView.setOnLongClickListener({
             view.showDialog(R.string.task_dialog_delete_title,R.string.task_dialog_delete_mess,item)
-//            Toast.makeText(context, "Position Clicked:"+" "+position, Toast.LENGTH_SHORT).show()
             return@setOnLongClickListener true
         })
-
+        rowView.setOnClickListener({
+          view.showTask(item)
+        })
         taskName.setText(item.name)
         taskDate.setText(DateUtils.toSimpleString(item.date))
         done.isChecked = item.isDone

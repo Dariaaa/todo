@@ -21,8 +21,14 @@ import k_de.com.app.createtask.CreateTaskActivity
 import k_de.com.app.tasks.Task
 import k_de.com.app.tasks.TasksRepository
 import k_de.com.app.util.Const
+import k_de.com.app.util.DateUtils
 
 class MainActivityFragment : Fragment(), MainContract.View{
+    override fun showTask(t: Task) {
+        val intent = Intent(context, CreateTaskActivity::class.java)
+        intent.putExtra("task",t)
+        startActivityForResult(intent, CreateTaskActivity.REQUEST_ADD_TASK)
+    }
 
     override fun showDialog(titleResId:Int, messResId: Int, item: Task) {
 

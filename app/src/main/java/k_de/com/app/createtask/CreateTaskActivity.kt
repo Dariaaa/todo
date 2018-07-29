@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import k_de.com.app.R
+import k_de.com.app.tasks.Task
 
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -27,9 +28,12 @@ class CreateTaskActivity : AppCompatActivity(){
         presenter.attachView(view)
         view.setPresenter(presenter)
 
+        val task = intent.getParcelableExtra<Task>("task")
+
         supportFragmentManager.beginTransaction()
                 .add(R.id.main_container,view)
                 .commit()
+        if (task!=null) view.showTask(task)
 
     }
 

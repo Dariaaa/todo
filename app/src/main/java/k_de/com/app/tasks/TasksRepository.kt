@@ -19,7 +19,11 @@ class TasksRepository private constructor(){
     }
 
     fun saveTask(t: Task){
-        tasks.add(t)
+        if (tasks.contains(t)){
+            tasks.set(tasks.indexOf(t),t)
+        }else{
+            tasks.add(t)
+        }
     }
 
     fun loadTasks(forceUpdate:Boolean):List<Task>{

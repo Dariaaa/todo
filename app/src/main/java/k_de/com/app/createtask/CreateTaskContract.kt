@@ -8,6 +8,7 @@ interface CreateTaskContract{
     interface View: MvpView {
         fun setPresenter(p:Presenter)
         fun saveTask()
+        fun showTask(t:Task)
     }
 
     interface Presenter: MvpPresenter<View> {

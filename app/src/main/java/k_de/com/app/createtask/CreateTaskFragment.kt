@@ -1,5 +1,6 @@
 package k_de.com.app.createtask
 
+import android.content.ClipDescription
 import android.content.Intent
 import android.support.v4.app.Fragment
 import android.os.Bundle
@@ -14,6 +15,7 @@ import k_de.com.app.main.MainActivity
 import k_de.com.app.util.DateManager
 import k_de.com.app.util.DateUtils
 import kotlinx.android.synthetic.main.create_task.*
+import java.util.*
 
 /**
  * A placeholder fragment containing a simple view.
@@ -21,6 +23,14 @@ import kotlinx.android.synthetic.main.create_task.*
 class CreateTaskFragment : Fragment(), CreateTaskContract.View {
     lateinit var taskDate:EditText
     lateinit var taskTime:EditText
+    lateinit var taskName:EditText
+    lateinit var taskDescription:EditText
+
+    private var task:Task? = null
+
+    override fun showTask(t: Task) {
+        this.task = t
+    }
 
     override fun saveTask() {
         if (!validate()) {
@@ -28,11 +38,18 @@ class CreateTaskFragment : Fragment(), CreateTaskContract.View {
             return
         }
         val date = DateUtils.toDate(taskDate.text.toString() +" "+ taskTime.text.toString())
-        val t = Task(taskName.text.toString(),taskDescription.text.toString(),date)
-        presenter.saveTask(t)
+        if (task==null){
+            task = Task(Random().nextLong(),taskName.text.toString(),taskDescription.text.toString(),date)
+        }else{
+            task!!.name = taskName.text.toString()
+            task!!.content= taskDescription.text.toString()
+            task!!.date = date
+        }
+        presenter.saveTask(task!!)
         val intent = Intent(context, MainActivity::class.java)
         startActivity(intent)
     }
+
     private fun validate():Boolean{
         if (taskDate.text.trim().isEmpty() || taskTime.text.trim().isEmpty()
                 ||taskName.text.trim().isEmpty()){
@@ -57,6 +74,9 @@ class CreateTaskFragment : Fragment(), CreateTaskContract.View {
         taskDate = v.findViewById(R.id.taskDate) as EditText
         taskTime = v.findViewById(R.id.taskTime) as EditText
 
+        taskName = v.findViewById(R.id.taskName) as EditText
+        taskDescription= v.findViewById(R.id.taskDescription) as EditText
+
         val dm = DateManager(context,taskDate,taskTime)
         taskDate.setOnClickListener({
             dm.setDate(it)
@@ -64,7 +84,13 @@ class CreateTaskFragment : Fragment(), CreateTaskContract.View {
         taskTime.setOnClickListener({
             dm.setTime(it)
         })
-
+        if (task!=null) {
+            val dateTime = DateUtils.toSimpleString(task!!.date).split(" ")
+            taskName.setText(task!!.name)
+            taskDescription.setText(task!!.content)
+            taskDate.setText(dateTime[0])
+            taskTime.setText(dateTime[1])
+        }
         return v
     }
 }
