@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Todo</string>
+    <string name="action_settings">Settings</string>
+    <string name="task.label.name">Name</string>
+    <string name="task.hint.name">Enter task name...</string>
+    <string name="task.label.date">Date</string>
+    <string name="task.label.description">Description</string>
+    <string name="task.hint.description">Enter task description here...</string>
+    <string name="menu.label.done">Done</string>
+    <string name="task.label.time">Time</string>
+</resources>
