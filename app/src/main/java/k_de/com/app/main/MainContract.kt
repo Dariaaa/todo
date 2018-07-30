@@ -18,4 +18,7 @@ interface MainContract{
         fun change(item: Task)
         fun delete(item: Task)
     }
+    interface Repository{
+        fun getAll():List<Task>
+    }
 }

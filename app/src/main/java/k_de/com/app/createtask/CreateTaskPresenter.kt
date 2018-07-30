@@ -3,6 +3,7 @@ package k_de.com.app.createtask
 import android.content.Context
 import k_de.com.app.db.AppDatabase
 import k_de.com.app.db.Task
+import k_de.com.app.main.MainContract
 
 class CreateTaskPresenter(context: Context?) :CreateTaskContract.Presenter{
 
@@ -13,10 +14,11 @@ class CreateTaskPresenter(context: Context?) :CreateTaskContract.Presenter{
         db.taskDao().insert(task)
     }
     override fun updateTask(task: Task){
-        val tasks = db.getAll(false)
-        val i = tasks.indexOf(task)
-        task.id = tasks[i].id
         db.taskDao().update(task)
+    }
+
+    override fun getById(id:Long):Task{
+        return db.taskDao().getById(id)
     }
 
     override fun attachView(mvpView: CreateTaskContract.View) {

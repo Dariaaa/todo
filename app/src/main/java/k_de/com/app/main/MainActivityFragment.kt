@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +29,13 @@ class MainActivityFragment : Fragment(), MainContract.View {
         val intent = Intent(context, CreateTaskActivity::class.java)
         intent.putExtra("task", t)
         startActivityForResult(intent, CreateTaskActivity.REQUEST_ADD_TASK)
+
+        val sharedPref = activity!!.getSharedPreferences(
+                getString(R.string.preference_task_key), AppCompatActivity.MODE_PRIVATE)
+        with(sharedPref.edit()){
+            putLong(getString(R.string.preference_task_key), t.id!!)
+            commit()
+        }
     }
 
     override fun showDialog(titleResId: Int, messResId: Int, item: Task) {
@@ -84,7 +92,6 @@ class MainActivityFragment : Fragment(), MainContract.View {
         tasksListAdapter.setPresenter(presenter)
         tasksListAdapter.setView(this)
         tasksList.adapter = tasksListAdapter
-        showAllTasks()
         return v
     }
 
@@ -92,5 +99,7 @@ class MainActivityFragment : Fragment(), MainContract.View {
         super.onResume()
         presenter = MainPresenter(context)
         presenter.attachView(this)
+
+        showAllTasks()
     }
 }

@@ -1,6 +1,7 @@
 package k_de.com.app.tasks
 
 import android.content.Context
+import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -63,6 +64,7 @@ class TasksListAdapter(context: Context, private val dataSource: MutableList<Tas
         })
         rowView.setOnClickListener({
             view.showTask(item)
+
         })
         taskName.setText(item.name)
         taskDate.setText(DateUtils.toSimpleString(item.date))

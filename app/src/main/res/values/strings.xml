@@ -12,5 +12,6 @@
     <string name="cancel">CANCEL</string>
     <string name="task.dialog.delete.title">Delete item</string>
     <string name="task.dialog.delete.mess">Are you sure?</string>
+    <string name="preference_task_key">task</string>
 
 </resources>

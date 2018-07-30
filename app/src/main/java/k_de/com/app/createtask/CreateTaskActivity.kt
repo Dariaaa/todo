@@ -27,15 +27,9 @@ class CreateTaskActivity : AppCompatActivity(){
         val presenter = CreateTaskPresenter(this)
         presenter.attachView(view)
         view.setPresenter(presenter)
-
-        val task = intent.getParcelableExtra<Task>("task")
-
         supportFragmentManager.beginTransaction()
                 .replace(R.id.main_container,view)
                 .commit()
-
-        if (task!=null) view.showTask(task)
-
     }
 
 

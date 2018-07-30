@@ -3,6 +3,7 @@ package k_de.com.app.createtask
 import android.content.Intent
 import android.support.v4.app.Fragment
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,56 +15,54 @@ import k_de.com.app.main.MainActivity
 import k_de.com.app.util.DateManager
 import k_de.com.app.util.DateUtils
 import org.jetbrains.anko.doAsync
-import java.util.*
+import org.jetbrains.anko.uiThread
 
 /**
  * A placeholder fragment containing a simple view.
  */
 class CreateTaskFragment : Fragment(), CreateTaskContract.View {
-    lateinit var taskDate:EditText
-    lateinit var taskTime:EditText
-    lateinit var taskName:EditText
+    lateinit var taskDate: EditText
+    lateinit var taskTime: EditText
+    lateinit var taskName: EditText
     private lateinit var presenter: CreateTaskContract.Presenter
-
-    lateinit var taskDescription:EditText
-
-    private var task: Task? = null
-
-    override fun showTask(t: Task) {
-        this.task = t
-    }
+    lateinit var taskDescription: EditText
+    private var taskId: Long? = null
 
     override fun saveTask() {
         if (!validate()) {
-            Toast.makeText(context,"Please enter all parameters",Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Please enter all parameters", Toast.LENGTH_SHORT).show()
             return
         }
-        val date = DateUtils.toDate(taskDate.text.toString() +" "+ taskTime.text.toString())
-        if (task==null){
-            task = Task(taskName.text.toString(), taskDescription.text.toString(), date)
+        val date = DateUtils.toDate(taskDate.text.toString() + " " + taskTime.text.toString())
+        if (taskId == null) {
+            val task = Task(taskName.text.toString(), taskDescription.text.toString(), date)
             doAsync {
-                presenter.saveTask(task!!)
+                presenter.saveTask(task)
             }
-        }else{
-            task!!.name = taskName.text.toString()
-            task!!.content= taskDescription.text.toString()
-            task!!.date = date
+        } else {
             doAsync {
-                presenter.updateTask(task!!)
+                val task = presenter.getById(taskId!!)
+                task.name = taskName.text.toString()
+                task.content = taskDescription.text.toString()
+                task.date = date
+
+                presenter.updateTask(task)
+                taskId = null
             }
         }
 
         val intent = Intent(context, MainActivity::class.java)
         startActivity(intent)
     }
-    private fun validate():Boolean{
+
+    private fun validate(): Boolean {
         if (taskDate.text.trim().isEmpty() || taskTime.text.trim().isEmpty()
-                ||taskName.text.trim().isEmpty()){
+                || taskName.text.trim().isEmpty()) {
             return false;
         }
-        try{
-            DateUtils.toDate(taskDate.text.toString() + " "+ taskTime.text.toString())
-        }catch (e:Exception){
+        try {
+            DateUtils.toDate(taskDate.text.toString() + " " + taskTime.text.toString())
+        } catch (e: Exception) {
             return false
         }
         return true
@@ -75,29 +74,19 @@ class CreateTaskFragment : Fragment(), CreateTaskContract.View {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val v =  inflater.inflate(R.layout.create_task, container, false)
+        val v = inflater.inflate(R.layout.create_task, container, false)
         taskDate = v.findViewById(R.id.taskDate) as EditText
         taskTime = v.findViewById(R.id.taskTime) as EditText
         taskName = v.findViewById(R.id.taskName) as EditText
-        taskDescription= v.findViewById(R.id.taskDescription) as EditText
+        taskDescription = v.findViewById(R.id.taskDescription) as EditText
 
-        val dm = DateManager(context,taskDate,taskTime)
+        val dm = DateManager(context, taskDate, taskTime)
         taskDate.setOnClickListener({
             dm.setDate(it)
         })
         taskTime.setOnClickListener({
             dm.setTime(it)
         })
-        presenter = CreateTaskPresenter(context)
-        presenter.attachView(this)
-
-        if (task!=null) {
-            val dateTime = DateUtils.toSimpleString(task!!.date).split(" ")
-            taskName.setText(task!!.name)
-            taskDescription.setText(task!!.content)
-            taskDate.setText(dateTime[0])
-            taskTime.setText(dateTime[1])
-        }
         return v
     }
 
@@ -105,5 +94,25 @@ class CreateTaskFragment : Fragment(), CreateTaskContract.View {
         super.onResume()
         presenter = CreateTaskPresenter(context)
         presenter.attachView(this)
+
+        val sharedPref = activity?.getSharedPreferences(
+                getString(R.string.preference_task_key), AppCompatActivity.MODE_PRIVATE) ?: return
+        taskId = sharedPref.getLong(getString(R.string.preference_task_key), 0)
+        doAsync {
+            val task = presenter.getById(taskId!!)
+            uiThread {
+                val dateTime = DateUtils.toSimpleString(task.date).split(" ")
+                taskName.setText(task.name)
+                taskDescription.setText(task.content)
+                taskDate.setText(dateTime[0])
+                taskTime.setText(dateTime[1])
+                with(sharedPref.edit()) {
+                    clear()
+                    commit()
+                }
+            }
+        }
     }
+
+
 }

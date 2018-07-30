@@ -1,10 +1,16 @@
 package k_de.com.app.main
 
+import android.app.Activity
 import android.content.Context
+import android.preference.Preference
+import android.provider.Settings.Global.getString
+import android.support.v7.app.AppCompatActivity
+import k_de.com.app.R
 import k_de.com.app.db.AppDatabase
 import k_de.com.app.db.Task
+import k_de.com.app.model.PreferencesHelper
 
-class MainPresenter(context: Context?):MainContract.Presenter{
+class MainPresenter(var context: Context?):MainContract.Presenter{
     var view: MainContract.View? = null
     var db:AppDatabase = AppDatabase.getInstance(context)!!
     lateinit var tasks :List<Task>
