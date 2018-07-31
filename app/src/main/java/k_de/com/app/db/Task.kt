@@ -10,11 +10,12 @@ import java.util.*
 
 @Parcelize
 @Entity
-class Task( var name:String, var content:String, var date:Date): Parcelable{
+class Task( var name:String, var content:String): Parcelable{
     @PrimaryKey
     var id:Long? = null
     var initDate: Date? = null
     var isDone:Boolean
+    var date:Date? = null
 
     init{
         this.initDate = Date()

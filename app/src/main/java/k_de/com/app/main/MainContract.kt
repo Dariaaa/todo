@@ -10,13 +10,15 @@ interface MainContract{
         fun setPresenter(p:Presenter)
         fun showAddTask()
         fun showTask(t: Task)
-        fun showDialog(titleResId:Int, messResId: Int,item: Task)
+        fun showDeleteDialog(titleResId:Int, messResId: Int, item: Task)
     }
 
     interface Presenter: MvpPresenter<View> {
         fun loadTasks(forseUpdate:Boolean):List<Task>
         fun change(item: Task)
         fun delete(item: Task)
+        fun persistTask(task: Task)
+        fun deleteAll()
     }
     interface Repository{
         fun getAll():List<Task>

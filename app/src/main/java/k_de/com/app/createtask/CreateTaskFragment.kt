@@ -15,6 +15,8 @@ import k_de.com.app.main.MainActivity
 import k_de.com.app.util.DateManager
 import k_de.com.app.util.DateUtils
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.support.v4.onUiThread
+import org.jetbrains.anko.support.v4.uiThread
 import org.jetbrains.anko.uiThread
 
 /**
@@ -26,28 +28,29 @@ class CreateTaskFragment : Fragment(), CreateTaskContract.View {
     lateinit var taskName: EditText
     private lateinit var presenter: CreateTaskContract.Presenter
     lateinit var taskDescription: EditText
-    private var taskId: Long? = null
+    private var task: Task? = null
 
     override fun saveTask() {
         if (!validate()) {
-            Toast.makeText(context, "Please enter all parameters", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.task_create_toast), Toast.LENGTH_SHORT).show()
             return
         }
         val date = DateUtils.toDate(taskDate.text.toString() + " " + taskTime.text.toString())
-        if (taskId == null) {
-            val task = Task(taskName.text.toString(), taskDescription.text.toString(), date)
+        if (task == null) {
+            task = Task(taskName.text.toString(), taskDescription.text.toString())
+            task!!.date = date
             doAsync {
-                presenter.saveTask(task)
+                presenter.saveTask(task!!)
             }
         } else {
             doAsync {
-                val task = presenter.getById(taskId!!)
-                task.name = taskName.text.toString()
-                task.content = taskDescription.text.toString()
-                task.date = date
 
-                presenter.updateTask(task)
-                taskId = null
+                task!!.name = taskName.text.toString()
+                task!!.content = taskDescription.text.toString()
+                task!!.date = date
+
+                presenter.updateTask(task!!)
+                task = null
             }
         }
 
@@ -80,6 +83,8 @@ class CreateTaskFragment : Fragment(), CreateTaskContract.View {
         taskName = v.findViewById(R.id.taskName) as EditText
         taskDescription = v.findViewById(R.id.taskDescription) as EditText
 
+
+
         val dm = DateManager(context, taskDate, taskTime)
         taskDate.setOnClickListener({
             dm.setDate(it)
@@ -87,6 +92,17 @@ class CreateTaskFragment : Fragment(), CreateTaskContract.View {
         taskTime.setOnClickListener({
             dm.setTime(it)
         })
+
+        if (savedInstanceState!=null) {
+            task = savedInstanceState.getParcelable("task")
+            if (task!!.date!=null){
+                val dateTime = DateUtils.toSimpleString(task!!.date!!).split(" ")
+                taskDate.setText(dateTime[0])
+                taskTime.setText(dateTime[1])
+            }
+            taskName.setText(task!!.name)
+            taskDescription.setText(task!!.content)
+        }
         return v
     }
 
@@ -94,25 +110,34 @@ class CreateTaskFragment : Fragment(), CreateTaskContract.View {
         super.onResume()
         presenter = CreateTaskPresenter(context)
         presenter.attachView(this)
+        presenter.setPrefs(activity!!.getSharedPreferences(getString(R.string.preferences), AppCompatActivity.MODE_PRIVATE))
+        if (task == null) {
+            doAsync {
+                task = presenter.detachTask()
+                if (task != null) {
+                    uiThread {
+                        val dateTime = DateUtils.toSimpleString(task!!.date!!).split(" ")
+                        taskName.setText(task!!.name)
+                        taskDescription.setText(task!!.content)
+                        taskDate.setText(dateTime[0])
+                        taskTime.setText(dateTime[1])
+                    }
+                }else{
 
-        val sharedPref = activity?.getSharedPreferences(
-                getString(R.string.preference_task_key), AppCompatActivity.MODE_PRIVATE) ?: return
-        taskId = sharedPref.getLong(getString(R.string.preference_task_key), 0)
-        doAsync {
-            val task = presenter.getById(taskId!!)
-            uiThread {
-                val dateTime = DateUtils.toSimpleString(task.date).split(" ")
-                taskName.setText(task.name)
-                taskDescription.setText(task.content)
-                taskDate.setText(dateTime[0])
-                taskTime.setText(dateTime[1])
-                with(sharedPref.edit()) {
-                    clear()
-                    commit()
                 }
             }
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
 
+        val task = Task(taskName.text.toString(), taskDescription.text.toString())
+
+        if (!taskDate.text.isEmpty() && !taskTime.text.isEmpty()){
+            val date = DateUtils.toDate(taskDate.text.toString() + " " + taskTime.text.toString())
+            task.date = date
+        }
+        outState.putParcelable("task",task)
+    }
 }

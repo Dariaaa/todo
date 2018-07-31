@@ -5,17 +5,16 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import k_de.com.app.R
-import k_de.com.app.db.Task
-
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class CreateTaskActivity : AppCompatActivity(){
+class CreateTaskActivity : AppCompatActivity() {
 
     companion object {
         var REQUEST_ADD_TASK = 0
     }
-    private lateinit var viewCreate:CreateTaskContract.View
+
+    private lateinit var viewCreate: CreateTaskContract.View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,9 +25,10 @@ class CreateTaskActivity : AppCompatActivity(){
         viewCreate = view
         val presenter = CreateTaskPresenter(this)
         presenter.attachView(view)
+        presenter.setPrefs(getSharedPreferences(getString(R.string.preferences), AppCompatActivity.MODE_PRIVATE))
         view.setPresenter(presenter)
         supportFragmentManager.beginTransaction()
-                .replace(R.id.main_container,view)
+                .replace(R.id.main_container, view)
                 .commit()
     }
 
@@ -43,6 +43,6 @@ class CreateTaskActivity : AppCompatActivity(){
             R.id.action_done ->
                 viewCreate.saveTask()
         }
-            return true
+        return true
     }
 }

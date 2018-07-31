@@ -1,7 +1,6 @@
-package k_de.com.app.tasks
+package k_de.com.app.main
 
 import android.content.Context
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import android.widget.CheckBox
 import android.widget.TextView
 import k_de.com.app.R
 import k_de.com.app.db.Task
-import k_de.com.app.main.MainContract
 import k_de.com.app.util.DateUtils
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -59,7 +57,7 @@ class TasksListAdapter(context: Context, private val dataSource: MutableList<Tas
             }
         }
         rowView.setOnLongClickListener({
-            view.showDialog(R.string.task_dialog_delete_title, R.string.task_dialog_delete_mess, item)
+            view.showDeleteDialog(R.string.task_dialog_delete_title, R.string.task_dialog_delete_mess, item)
             return@setOnLongClickListener true
         })
         rowView.setOnClickListener({
@@ -67,7 +65,7 @@ class TasksListAdapter(context: Context, private val dataSource: MutableList<Tas
 
         })
         taskName.setText(item.name)
-        taskDate.setText(DateUtils.toSimpleString(item.date))
+        taskDate.setText(DateUtils.toSimpleString(item.date!!))
         done.isChecked = item.isDone
 
         return rowView
@@ -84,5 +82,4 @@ class TasksListAdapter(context: Context, private val dataSource: MutableList<Tas
     override fun getCount(): Int {
         return dataSource.size
     }
-//https://github.com/irontec/android-room-example/blob/master/app/src/main/java/com/irontec/roomexample/adapters/CustomerAdapter.kt
 }

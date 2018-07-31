@@ -15,7 +15,6 @@ import android.widget.ListView
 import k_de.com.app.R
 import k_de.com.app.createtask.CreateTaskActivity
 import k_de.com.app.db.Task
-import k_de.com.app.tasks.TasksListAdapter
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
@@ -26,19 +25,12 @@ class MainActivityFragment : Fragment(), MainContract.View {
     private lateinit var tasksList: ListView
 
     override fun showTask(t: Task) {
+        presenter.persistTask(t)
         val intent = Intent(context, CreateTaskActivity::class.java)
-        intent.putExtra("task", t)
         startActivityForResult(intent, CreateTaskActivity.REQUEST_ADD_TASK)
-
-        val sharedPref = activity!!.getSharedPreferences(
-                getString(R.string.preference_task_key), AppCompatActivity.MODE_PRIVATE)
-        with(sharedPref.edit()){
-            putLong(getString(R.string.preference_task_key), t.id!!)
-            commit()
-        }
     }
 
-    override fun showDialog(titleResId: Int, messResId: Int, item: Task) {
+    override fun showDeleteDialog(titleResId: Int, messResId: Int, item: Task) {
 
         val builder = AlertDialog.Builder(context)
         builder.setTitle(titleResId)
@@ -99,7 +91,7 @@ class MainActivityFragment : Fragment(), MainContract.View {
         super.onResume()
         presenter = MainPresenter(context)
         presenter.attachView(this)
-
+        presenter.setPrefs(activity!!.getSharedPreferences( getString(R.string.preferences), AppCompatActivity.MODE_PRIVATE))
         showAllTasks()
     }
 }

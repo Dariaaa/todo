@@ -1,17 +1,22 @@
 <resources>
-    <string name="app_name">Todo</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">TODO</string>
     <string name="task.label.name">Name</string>
-    <string name="task.hint.name">Enter task name...</string>
+    <string name="task.hint.name">Enter task name…</string>
     <string name="task.label.date">Date</string>
     <string name="task.label.description">Description</string>
-    <string name="task.hint.description">Enter task description here...</string>
+    <string name="task.hint.description">Enter task description here…</string>
     <string name="menu.label.done">Done</string>
     <string name="task.label.time">Time</string>
     <string name="ok">OK</string>
     <string name="cancel">CANCEL</string>
     <string name="task.dialog.delete.title">Delete item</string>
     <string name="task.dialog.delete.mess">Are you sure?</string>
-    <string name="preference_task_key">task</string>
-
+    <string name="preference_task_key">task_id</string>
+    <string name="preferences">app_prefs</string>
+    <string name="menu.label.delete.all">Delete all</string>
+    <string name="task.create.toast">Please enter all parameters</string>
+    <string name="db.name">"tasks.db"</string>
+    <string name="app.title.tasks">Tasks</string>
+    <string name="app.title.new_task">New task</string>
+    <string name="preference_task">task</string>
 </resources>

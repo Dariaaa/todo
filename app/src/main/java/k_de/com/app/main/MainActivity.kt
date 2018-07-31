@@ -5,20 +5,26 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import k_de.com.app.R
+import k_de.com.app.db.AppDatabase
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.doAsync
 
 
 class MainActivity : AppCompatActivity(){
+
+    private lateinit var presenter: MainPresenter
+
+    private lateinit var view: MainActivityFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        val view = MainActivityFragment()
+        view = MainActivityFragment()
 
-        val presenter = MainPresenter(this)
+        presenter = MainPresenter(this)
         presenter.attachView(view)
-
+        presenter.setPrefs(getSharedPreferences( getString(R.string.preferences), AppCompatActivity.MODE_PRIVATE))
         view.setPresenter(presenter)
 
         supportFragmentManager.beginTransaction()
@@ -36,8 +42,19 @@ class MainActivity : AppCompatActivity(){
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_delete_all ->{
+                doAsync {
+                    presenter.deleteAll()
+                    view.showAllTasks()
+                }
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        AppDatabase.destroyInstance()
     }
 }

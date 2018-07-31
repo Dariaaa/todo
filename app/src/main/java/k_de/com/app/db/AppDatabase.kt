@@ -5,6 +5,7 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
 import android.content.Context
+import k_de.com.app.R
 import k_de.com.app.util.Converters
 
 @Database(entities = arrayOf(Task::class), version = 1)
@@ -21,7 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
                 synchronized(AppDatabase::class) {
                     if (context != null) {
                         INSTANCE = Room.databaseBuilder(context.applicationContext,
-                                AppDatabase::class.java, "tasks.db")
+                                AppDatabase::class.java, context.getString(R.string.db_name))
                                 .fallbackToDestructiveMigration()
                                 .build()
                     }
@@ -35,11 +36,4 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 
-    var tasks:MutableList<Task> = mutableListOf()
-
-    fun getAll(forceUpdade:Boolean):MutableList<Task>{
-        if (forceUpdade || tasks.isEmpty())
-            tasks = taskDao().getAll() as MutableList<Task>
-        return tasks
-    }
 }

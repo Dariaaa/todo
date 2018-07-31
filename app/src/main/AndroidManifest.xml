@@ -4,16 +4,14 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/task"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:noHistory="true"
+        android:roundIcon="@drawable/task"
         android:supportsRtl="true"
-        android:name=".App"
         android:theme="@style/AppTheme">
         <activity
             android:name=".main.MainActivity"
-            android:label="@string/app_name"
+            android:label="@string/app.title.tasks"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +21,9 @@
         </activity>
         <activity
             android:name=".createtask.CreateTaskActivity"
-            android:label="@string/app_name"
+            android:label="@string/app.title.new_task"
+            android:screenOrientation="portrait"
+            android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
